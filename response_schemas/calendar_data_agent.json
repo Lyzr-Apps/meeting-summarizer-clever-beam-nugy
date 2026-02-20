@@ -1,0 +1,17 @@
+{
+  "agent_id": "69982901ad21b9c50a06f7fe",
+  "agent_name": "Calendar Data Agent",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "event_title": "string",
+    "event_date": "string",
+    "event_time": "string",
+    "duration": "string",
+    "attendees": ["string"],
+    "description": "string",
+    "agenda": "string",
+    "location": "string"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "agent_id": "6998290e9267270c12d34f0a",
+  "agent_name": "Slack Publisher Agent",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "status": "string",
+    "channel": "string",
+    "message_url": "string",
+    "posted_at": "string"
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "agent_id": "6998291fad21b9c50a06f80a",
+  "agent_name": "Meeting Summary Coordinator",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "meeting_title": "string",
+    "meeting_date": "string",
+    "meeting_time": "string",
+    "attendees": ["string"],
+    "summary": "string",
+    "action_items": [
+      {
+        "task": "string",
+        "owner": "string",
+        "priority": "string",
+        "deadline": "string"
+      }
+    ],
+    "key_decisions": ["string"],
+    "insights": ["string"]
+  }
+}

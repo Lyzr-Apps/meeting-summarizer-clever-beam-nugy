@@ -1,0 +1,62 @@
+{
+  "nodes": [
+    {
+      "id": "input_node",
+      "type": "Input",
+      "label": "User Input",
+      "nodeCategory": "input"
+    },
+    {
+      "id": "manager_agent",
+      "type": "Agent",
+      "label": "Meeting Summary Coordinator",
+      "nodeCategory": "agent"
+    },
+    {
+      "id": "calendar_agent",
+      "type": "Agent",
+      "label": "Calendar Data Agent",
+      "nodeCategory": "agent"
+    },
+    {
+      "id": "slack_context_agent",
+      "type": "Agent",
+      "label": "Slack Context Agent",
+      "nodeCategory": "agent"
+    },
+    {
+      "id": "slack_publisher_agent",
+      "type": "Agent",
+      "label": "Slack Publisher Agent",
+      "nodeCategory": "agent"
+    },
+    {
+      "id": "output_node",
+      "type": "Output",
+      "label": "Output",
+      "nodeCategory": "end"
+    }
+  ],
+  "edges": [
+    {
+      "source": "input_node",
+      "target": "manager_agent"
+    },
+    {
+      "source": "manager_agent",
+      "target": "calendar_agent"
+    },
+    {
+      "source": "manager_agent",
+      "target": "slack_context_agent"
+    },
+    {
+      "source": "manager_agent",
+      "target": "slack_publisher_agent"
+    },
+    {
+      "source": "slack_publisher_agent",
+      "target": "output_node"
+    }
+  ]
+}

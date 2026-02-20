@@ -1,0 +1,50 @@
+{
+  "agents": {
+    "meeting_summary_coordinator": {
+      "agent_id": "6998291fad21b9c50a06f80a",
+      "agent_name": "Meeting Summary Coordinator",
+      "agent_type": "manager",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "managed_agents": [
+        "69982901ad21b9c50a06f7fe",
+        "69982901f71d44b61c7dd15b"
+      ]
+    },
+    "calendar_data_agent": {
+      "agent_id": "69982901ad21b9c50a06f7fe",
+      "agent_name": "Calendar Data Agent",
+      "agent_type": "sub-agent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "tools": ["googlecalendar"]
+    },
+    "slack_context_agent": {
+      "agent_id": "69982901f71d44b61c7dd15b",
+      "agent_name": "Slack Context Agent",
+      "agent_type": "sub-agent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "tools": ["slack"]
+    },
+    "slack_publisher_agent": {
+      "agent_id": "6998290e9267270c12d34f0a",
+      "agent_name": "Slack Publisher Agent",
+      "agent_type": "independent",
+      "provider": "openai",
+      "model": "gpt-4.1",
+      "tools": ["slack"]
+    }
+  },
+  "workflow_pattern": "hybrid_manager_subagent_plus_independent",
+  "integrations": {
+    "google_calendar": {
+      "tool_source": "composio",
+      "used_by": "calendar_data_agent"
+    },
+    "slack": {
+      "tool_source": "composio",
+      "used_by": ["slack_context_agent", "slack_publisher_agent"]
+    }
+  }
+}

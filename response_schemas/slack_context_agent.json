@@ -1,0 +1,19 @@
+{
+  "agent_id": "69982901f71d44b61c7dd15b",
+  "agent_name": "Slack Context Agent",
+  "agent_type": "json",
+  "accessor": "json",
+  "has_module_outputs": false,
+  "response_schema": {
+    "channel_name": "string",
+    "messages": [
+      {
+        "user": "string",
+        "text": "string",
+        "timestamp": "string"
+      }
+    ],
+    "thread_count": "string",
+    "summary": "string"
+  }
+}
