@@ -477,6 +477,12 @@ function DashboardView({
   customMeeting,
   setCustomMeeting,
   onAddCustomMeeting,
+  isFetchingEvents,
+  calendarEvents,
+  showCalendarPicker,
+  setShowCalendarPicker,
+  onFetchCalendarEvents,
+  onSelectCalendarEvent,
 }: {
   meetings: Meeting[]
   selectedMeeting: Meeting | null
@@ -493,6 +499,12 @@ function DashboardView({
   customMeeting: Partial<Meeting>
   setCustomMeeting: React.Dispatch<React.SetStateAction<Partial<Meeting>>>
   onAddCustomMeeting: () => void
+  isFetchingEvents: boolean
+  calendarEvents: Meeting[]
+  showCalendarPicker: boolean
+  setShowCalendarPicker: (b: boolean) => void
+  onFetchCalendarEvents: () => void
+  onSelectCalendarEvent: (event: Meeting) => void
 }) {
   const filteredMeetings = meetings.filter(
     (m) =>
@@ -506,11 +518,30 @@ function DashboardView({
       <div className="w-[340px] shrink-0 border-r border-border flex flex-col bg-background">
         <div className="p-4 border-b border-border space-y-3">
           <div className="flex items-center justify-between">
-            <h2 className="text-base font-bold tracking-tight">Upcoming Meetings</h2>
-            <Button variant="ghost" size="sm" onClick={() => setShowCustomForm(!showCustomForm)} className="h-8 text-xs gap-1 text-primary">
-              <FiEdit2 className="w-3 h-3" />
-              {showCustomForm ? 'Cancel' : 'New'}
-            </Button>
+            <h2 className="text-base font-bold tracking-tight">Meetings</h2>
+            <div className="flex items-center gap-1">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={onFetchCalendarEvents}
+                disabled={isFetchingEvents}
+                className="h-8 text-xs gap-1.5 text-accent hover:text-accent"
+              >
+                {isFetchingEvents ? (
+                  <svg className="w-3.5 h-3.5 animate-spin" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                ) : (
+                  <BsCalendar3 className="w-3.5 h-3.5" />
+                )}
+                {isFetchingEvents ? 'Fetching...' : 'Fetch from Calendar'}
+              </Button>
+              <Button variant="ghost" size="sm" onClick={() => setShowCustomForm(!showCustomForm)} className="h-8 text-xs gap-1 text-primary">
+                <FiEdit2 className="w-3 h-3" />
+                {showCustomForm ? 'Cancel' : 'New'}
+              </Button>
+            </div>
           </div>
           <div className="relative">
             <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground" />
@@ -524,6 +555,66 @@ function DashboardView({
         </div>
 
         <ScrollArea className="flex-1">
+          {showCalendarPicker && calendarEvents.length > 0 && (
+            <div className="mx-3 mt-2 mb-3">
+              <Card className="border-accent/30 shadow-lg shadow-black/20 rounded-xl bg-card overflow-hidden">
+                <CardHeader className="py-3 px-4 bg-accent/5 border-b border-accent/10">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-xs font-semibold tracking-tight flex items-center gap-2 text-accent">
+                      <BsCalendar3 className="w-3.5 h-3.5" />
+                      Google Calendar Events
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setShowCalendarPicker(false)}
+                      className="h-6 w-6 p-0 text-muted-foreground rounded-lg"
+                    >
+                      <FiAlertCircle className="w-3.5 h-3.5" />
+                    </Button>
+                  </div>
+                  <CardDescription className="text-[10px] mt-0.5">Select an event to auto-populate meeting details</CardDescription>
+                </CardHeader>
+                <CardContent className="p-2 max-h-[300px] overflow-y-auto space-y-1.5">
+                  {calendarEvents.map((event) => (
+                    <button
+                      key={event.id}
+                      onClick={() => onSelectCalendarEvent(event)}
+                      className="w-full text-left p-3 rounded-lg border border-border hover:border-accent/30 hover:bg-accent/5 transition-all duration-200 group"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-semibold text-foreground truncate group-hover:text-accent transition-colors">{event.title}</p>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                            <span className="flex items-center gap-1">
+                              <FiCalendar className="w-3 h-3" />
+                              {formatDate(event.date)}
+                            </span>
+                            {event.time && (
+                              <span className="flex items-center gap-1">
+                                <FiClock className="w-3 h-3" />
+                                {event.time}
+                              </span>
+                            )}
+                            {Array.isArray(event.attendees) && event.attendees.length > 0 && (
+                              <span className="flex items-center gap-1">
+                                <FiUsers className="w-3 h-3" />
+                                {event.attendees.length}
+                              </span>
+                            )}
+                          </div>
+                          {event.description && (
+                            <p className="text-xs text-muted-foreground mt-1 line-clamp-1">{event.description}</p>
+                          )}
+                        </div>
+                        <FiChevronRight className="w-4 h-4 text-muted-foreground group-hover:text-accent mt-1 shrink-0 transition-colors" />
+                      </div>
+                    </button>
+                  ))}
+                </CardContent>
+              </Card>
+            </div>
+          )}
           <div className="p-3 space-y-2">
             {showCustomForm && (
               <Card className="border-primary/30 shadow-lg shadow-black/20 rounded-xl bg-card">
@@ -706,9 +797,39 @@ function DashboardView({
                   <HiOutlineDocumentText className="w-8 h-8 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold tracking-tight mb-2">Select a Meeting</h3>
-                <p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-                  Choose a meeting from the list or create a new one to generate an AI-powered summary with action items, key decisions, and insights.
+                <p className="text-sm text-muted-foreground max-w-sm leading-relaxed mb-6">
+                  Choose a meeting from the list or fetch your upcoming events directly from Google Calendar.
                 </p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    onClick={onFetchCalendarEvents}
+                    disabled={isFetchingEvents}
+                    className="h-10 rounded-xl text-sm font-semibold gap-2 shadow-lg shadow-primary/20"
+                  >
+                    {isFetchingEvents ? (
+                      <>
+                        <svg className="w-4 h-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        </svg>
+                        Fetching...
+                      </>
+                    ) : (
+                      <>
+                        <BsCalendar3 className="w-4 h-4" />
+                        Fetch from Google Calendar
+                      </>
+                    )}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setShowCustomForm(true)}
+                    className="h-10 rounded-xl text-sm gap-2"
+                  >
+                    <FiEdit2 className="w-4 h-4" />
+                    Add Manually
+                  </Button>
+                </div>
               </div>
             )}
           </div>
@@ -1412,6 +1533,9 @@ export default function Page() {
   const [showSampleData, setShowSampleData] = useState(false)
   const [showCustomForm, setShowCustomForm] = useState(false)
   const [customMeeting, setCustomMeeting] = useState<Partial<Meeting>>({})
+  const [isFetchingEvents, setIsFetchingEvents] = useState(false)
+  const [calendarEvents, setCalendarEvents] = useState<Meeting[]>([])
+  const [showCalendarPicker, setShowCalendarPicker] = useState(false)
 
   // Clear status after a delay
   useEffect(() => {
@@ -1458,6 +1582,97 @@ export default function Page() {
     setShowCustomForm(false)
     setStatusMessage({ type: 'success', text: 'Meeting added successfully' })
   }, [customMeeting])
+
+  const handleFetchCalendarEvents = useCallback(async () => {
+    setIsFetchingEvents(true)
+    setStatusMessage({ type: 'info', text: 'Fetching events from Google Calendar...' })
+    setActiveAgentId(AGENT_IDS.calendarData)
+
+    try {
+      const result = await callAIAgent(
+        `List all upcoming calendar events for the next 7 days from Google Calendar. For each event, provide the event title, date, start time, duration, attendees (names or emails), description, agenda or notes, and meeting link or location. Return all events you find.`,
+        AGENT_IDS.calendarData
+      )
+
+      if (result.success) {
+        const data = result?.response?.result
+
+        let fetchedEvents: Meeting[] = []
+
+        if (data) {
+          if (data.event_title) {
+            fetchedEvents = [{
+              id: `gcal-${Date.now()}`,
+              title: data.event_title || 'Untitled Event',
+              date: data.event_date || new Date().toISOString().split('T')[0],
+              time: data.event_time || '',
+              duration: data.duration || '',
+              attendees: Array.isArray(data.attendees) ? data.attendees : [],
+              description: data.description || '',
+              agenda: data.agenda || '',
+              slackChannel: '',
+            }]
+          }
+
+          if (Array.isArray(data.events)) {
+            fetchedEvents = data.events.map((evt: any, idx: number) => ({
+              id: `gcal-${Date.now()}-${idx}`,
+              title: evt.event_title || evt.title || evt.summary || 'Untitled Event',
+              date: evt.event_date || evt.date || evt.start_date || '',
+              time: evt.event_time || evt.time || evt.start_time || '',
+              duration: evt.duration || '',
+              attendees: Array.isArray(evt.attendees) ? evt.attendees : [],
+              description: evt.description || '',
+              agenda: evt.agenda || '',
+              slackChannel: '',
+            }))
+          }
+
+          if (fetchedEvents.length === 0 && (data.text || data.message || typeof data === 'string')) {
+            const textContent = data.text || data.message || (typeof data === 'string' ? data : '')
+            fetchedEvents = [{
+              id: `gcal-${Date.now()}`,
+              title: data.event_title || 'Calendar Event',
+              date: data.event_date || new Date().toISOString().split('T')[0],
+              time: data.event_time || '',
+              duration: data.duration || '',
+              attendees: Array.isArray(data.attendees) ? data.attendees : [],
+              description: textContent || data.description || '',
+              agenda: data.agenda || '',
+              slackChannel: '',
+            }]
+          }
+        }
+
+        if (fetchedEvents.length > 0) {
+          setCalendarEvents(fetchedEvents)
+          setShowCalendarPicker(true)
+          setStatusMessage({ type: 'success', text: `Found ${fetchedEvents.length} event${fetchedEvents.length > 1 ? 's' : ''} from Google Calendar` })
+        } else {
+          setStatusMessage({ type: 'info', text: 'No upcoming events found in your Google Calendar' })
+        }
+      } else {
+        setStatusMessage({ type: 'error', text: result?.error || 'Failed to fetch calendar events' })
+      }
+    } catch (err) {
+      setStatusMessage({ type: 'error', text: 'An error occurred while fetching calendar events' })
+    } finally {
+      setIsFetchingEvents(false)
+      setActiveAgentId(null)
+    }
+  }, [])
+
+  const handleSelectCalendarEvent = useCallback((event: Meeting) => {
+    setMeetings((prev) => {
+      const exists = prev.some((m) => m.id === event.id)
+      if (!exists) return [event, ...prev]
+      return prev
+    })
+    setSelectedMeeting(event)
+    setShowCalendarPicker(false)
+    setCalendarEvents([])
+    setStatusMessage({ type: 'success', text: `Selected: ${event.title}` })
+  }, [])
 
   const handleGenerateSummary = useCallback(async () => {
     if (!selectedMeeting) return
@@ -1648,6 +1863,12 @@ ${summaryInsights}`,
               customMeeting={customMeeting}
               setCustomMeeting={setCustomMeeting}
               onAddCustomMeeting={handleAddCustomMeeting}
+              isFetchingEvents={isFetchingEvents}
+              calendarEvents={calendarEvents}
+              showCalendarPicker={showCalendarPicker}
+              setShowCalendarPicker={setShowCalendarPicker}
+              onFetchCalendarEvents={handleFetchCalendarEvents}
+              onSelectCalendarEvent={handleSelectCalendarEvent}
             />
           )}
 
